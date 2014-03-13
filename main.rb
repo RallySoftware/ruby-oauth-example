@@ -32,13 +32,13 @@ enable :sessions
 get '/login' do
 	uri = URI(RALLY_AUTH_URL)
 	params = { 
-		:state => SecureRandom.uuid,
-		:response_type => "code",
-		:redirect_uri => SERVER_URL + "/oauth-redirect",
-		:client_id => CLIENT_ID,
-		:scope => "openid"
+		:state => SecureRandom.uuid, # a random number used to validate the request received when Rally redirects back
+		:response_type => "code", # We want an authentication token, known as code. 
+		:redirect_uri => SERVER_URL + "/oauth-redirect", # This must match the redirect uri specified when creating your client
+		:client_id => CLIENT_ID, # This is issued by rally when you create your client
+		:scope => "openid" 
 	}
-	session[:state] = params[:state]
+	session[:state] = params[:state] 
 
 	uri.query = URI.encode_www_form(params) 
 	redirect to(uri.to_s) 
@@ -53,11 +53,11 @@ get '/oauth-redirect' do
 	end
 
 	new_params = { 
-		:code => params[:code],
-		:redirect_uri => SERVER_URL + "/oauth-redirect",
-		:grant_type => "authorization_code",
-		:client_id => CLIENT_ID,
-		:client_secret => CLIENT_SECRET
+		:code => params[:code], # the authentication token supplied by rally in the redirect
+		:redirect_uri => SERVER_URL + "/oauth-redirect", # must match the redirect specified earlier
+		:grant_type => "authorization_code", # we are supplying an authorization token to exchange for an access token
+		:client_id => CLIENT_ID, # The Client ID you got from creating a Rally OAuth Client
+		:client_secret => CLIENT_SECRET # The Client Secret you got from creating a Rally OAuth Client
 
 	}
 	
