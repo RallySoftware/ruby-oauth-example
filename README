@@ -1,7 +1,7 @@
 
 ## OAuth Ruby Sample
 
-This is an OAuth sample that uses a Sinatra server. 
+This is an OAuth sample that uses a Sinatra server. You can see it online at `http://rally-ruby-oauth.herokuapp.com/`
 
 We use shell variables to set 
 
@@ -11,3 +11,6 @@ We use shell variables to set
 
 `export SERVER_URL="http://localhost:4567"`
 
+To start the app
+
+`foreman start`
