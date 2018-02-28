@@ -1,18 +1,15 @@
 require 'sinatra'
-require 'rest_client'
 
-require 'net/http'
 require 'securerandom'
 require 'json'
-
-RestClient.log = $stdout
+require 'httparty'
 
 # You can get your Client ID and Secret from
 # https://login.rally1.rallydev.com/client.html
 # The SERVER_URL must match the one specifed in Rally
 CLIENT_ID  = ENV["CLIENT_ID"] 
 CLIENT_SECRET = ENV["CLIENT_SECRET"] 
-SERVER_URL = ENV["SERVER_URL"] 
+SERVER_URL = "https://rally1.rallydev.com/" 
 
 # The Rally OAuth Server
 OAUTH_SERVER = "https://rally1.rallydev.com/login/oauth2"
@@ -64,7 +61,7 @@ get '/oauth-redirect' do
 	# post to RALLY_TOKEN_URL, the body is form-urlencoded 
 	# the client id and secret can also be sent as basic-auth
 	begin 
-		access_resp = RestClient.post RALLY_TOKEN_URL, URI.encode_www_form(new_params), :content_type => "application/x-www-form-urlencoded", :accept => :json
+		access_resp = HTTParty.post RALLY_TOKEN_URL, URI.encode_www_form(new_params)
 	rescue Exception => e
 		return "Failed to get Token #{e}"
 	end
@@ -83,10 +80,10 @@ get '/' do
 	user_stories = []
 
 	# Lookup our username
-	user_resp = JSON.load(RestClient.get RALLY_WSAPI_USER_URL,  { "zsessionid" => session[:auth] })
+	user_resp = JSON.load(HTTParty.get RALLY_WSAPI_USER_URL,  { "zsessionid" => session[:auth] })
 	username = user_resp["User"]["UserName"]
 	# Lookup the stories for whichever user we are authenticated as
-	wsapi_resp = JSON.load(RestClient.get RALLY_WSAPI_STORIES_URL,  { "zsessionid" => session[:auth], :params => { :fetch => "Name", :query => "(Owner = #{user_resp["User"]["UserName"]})" }})
+	wsapi_resp = JSON.load(HTTParty.get RALLY_WSAPI_STORIES_URL,  { "zsessionid" => session[:auth], :params => { :fetch => "Name", :query => "(Owner = #{user_resp["User"]["UserName"]})" }})
 	wsapi_resp["QueryResult"]["Results"].each { | user_story |
 		user_stories << user_story
 	}
